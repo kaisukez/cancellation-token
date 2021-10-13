@@ -22,7 +22,13 @@ const Task = {
             
             throw error
         }
-    }
+    },
+
+    // syntactic sugar for writing code in single line
+    checkpoint: (token, anything) => {
+        token.throwIfCanceled()
+        return anything
+    },
 }
 
 module.exports = {
