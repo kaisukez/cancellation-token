@@ -1,4 +1,4 @@
-const { CancelToken, CancelError, Task } = require('./index')
+const { CancelToken, CancelError, Task } = require('./src')
 
 async function task(token) {
     let i = 0
