@@ -2,7 +2,7 @@ async function main() {
     const { default: fetch, AbortError } = await import('node-fetch')
     const { AbortController } = require('node-abort-controller')
 
-    const { CancelToken, CancelError, Task } = require('./src')
+    const { CancelToken, CancelError, Task } = require('../src')
     
     async function fetchData(token, signal) {
         while (true) {
