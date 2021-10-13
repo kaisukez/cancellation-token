@@ -1,14 +1,10 @@
-const { CancelToken, CancelError } = require('./index')
-
-async function sleep(ms) {
-    await new Promise(resolve => setTimeout(resolve, ms))
-}
+const { CancelToken, CancelError, Task } = require('./index')
 
 async function task(token) {
     let i = 0
     while (true) {
         console.log(`do task i=${i++}`)
-        await sleep(500)
+        await Task.sleep(500)
 
         if (token.isCanceled) {
             console.log('do cleanup before throwing CancelError')
@@ -22,17 +18,18 @@ async function main() {
         setTimeout(() => cancel(), 3000)
     })
     
-    // const [token, cancel] = CancelToken.create()
+    // const { token, cancel } = CancelToken.source()
     // setTimeout(() => cancel(), 3000)
 
     try {
         await task(token)
     } catch (error) {
-        if (error !== CancelError) {
-            throw error
+        if (error instanceof CancelError) {
+            console.log('task got canceled')
+            return
         }
-
-        console.log('task got canceled')
+        
+        throw error
     }
 }
 
