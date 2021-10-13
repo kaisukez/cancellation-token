@@ -1,16 +1,5 @@
-class CancelError extends Error {
-    name = 'CancelError'
-}
-
-class InternalState {
-    constructor() {
-        this.isCanceled = false
-    }
-
-    cancel() {
-        this.isCanceled = true
-    }
-}
+const CancelError = require('./CancelError')
+const InternalState = require('./InternalState')
 
 class _CancelToken {
     #internalState
@@ -38,21 +27,7 @@ function CancelToken(executor) {
     return new _CancelToken(internalState, executor)
 }
 
-CancelToken.source = function() {
-    const internalState = new InternalState()
-
-    return {
-        token: new _CancelToken(internalState, null),
-        cancel: internalState.cancel.bind(internalState),
-    }
-}
-
-const Task = {
-    sleep: async ms => new Promise(resolve => setTimeout(resolve, ms)),
-}
-
 module.exports = {
-    CancelError,
+    _CancelToken,
     CancelToken,
-    Task,
 }
