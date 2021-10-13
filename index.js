@@ -1,4 +1,6 @@
-const CancelError = new Error('CancelError')
+class CancelError extends Error {
+    name = 'CancelError'
+}
 
 class InternalState {
     constructor() {
@@ -26,7 +28,7 @@ class _CancelToken {
 
     throwIfCanceled() {
         if (this.#internalState.isCanceled) {
-            throw CancelError
+            throw new CancelError
         }
     }
 }
@@ -36,16 +38,21 @@ function CancelToken(executor) {
     return new _CancelToken(internalState, executor)
 }
 
-CancelToken.create = function() {
+CancelToken.source = function() {
     const internalState = new InternalState()
 
-    return [
-        new _CancelToken(internalState, null),
-        internalState.cancel.bind(internalState),
-    ]
+    return {
+        token: new _CancelToken(internalState, null),
+        cancel: internalState.cancel.bind(internalState),
+    }
+}
+
+const Task = {
+    sleep: async ms => new Promise(resolve => setTimeout(resolve, ms)),
 }
 
 module.exports = {
     CancelError,
     CancelToken,
+    Task,
 }
