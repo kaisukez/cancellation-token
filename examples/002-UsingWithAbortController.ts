@@ -1,28 +1,20 @@
 import fetch from 'node-fetch'
 import { AbortController, AbortSignal } from 'node-abort-controller'
-import { CancellationToken, CancellationError, Task } from '../src'
+import {
+    CancellationToken,
+    CancellationError,
+    Task,
+} from '../src'
 
 async function fetchData(token: CancellationToken, signal: AbortSignal) {
-    while (true) {
-        console.log('step 1')
-        let result = await fetch('http://www.google.com', { signal })
+    const result = await fetch('http://www.google.com', { signal })
 
-        console.log('step 2')
-        await Task.sleep(Math.floor(Math.random() * 100))
-        token.throwIfCancellationRequested()
+    // do something in between
+    await Task.sleep(100)
+    token.throwIfCancellationRequested()
 
-        console.log('step 3')
-        let html = await result.text()
-        if (Math.floor(Math.random() * 5) === 0) {
-            return html.slice(0, 20)
-        }
-
-        console.log('step 4')
-        await Task.sleep(Math.floor(Math.random() * 100))
-        token.throwIfCancellationRequested()
-
-        console.log('-------------------')
-    }
+    const html = await result.text()
+    return html.slice(0, 20)
 }
 
 async function main() {
@@ -33,7 +25,7 @@ async function main() {
         console.log('onCancel -> controller.abort()')
         controller.abort()
     })
-    setTimeout(() => cancel(), 1000)
+    setTimeout(() => cancel(), Math.floor(Math.random() * 400))
 
     try {
         const html = await fetchData(token, controller.signal)
@@ -42,12 +34,14 @@ async function main() {
         if (error instanceof CancellationError) {
             console.log('task got canceled')
         } else if (error?.constructor?.name === 'AbortError') {
+            // or you can use (error instanceof AbortError)
             console.log('task got aborted')
         } else {
             throw error
         }
     } finally {
         unregister()
+        cancel()
     }
 }
 

@@ -1,4 +1,9 @@
-import { CancellationToken, CancellationError, Checkpoint, Task } from '../src'
+import {
+    CancellationToken,
+    CancellationError,
+    Checkpoint,
+    Task,
+} from '../src'
 
 async function longRunningTask(id: number) {
     console.log('longRunningTask', id)
@@ -50,7 +55,7 @@ async function task(token: CancellationToken) {
 
 async function main() {
     const token = new CancellationToken(cancel => {
-        setTimeout(() => cancel(), 1357)
+        setTimeout(() => cancel(), 1234)
     })
     
     // const { token, cancel } = CancellationToken.source()

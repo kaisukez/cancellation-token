@@ -1,4 +1,8 @@
-import { CancellationToken, CancellationError, Task } from '../src'
+import {
+    CancellationToken,
+    CancellationError,
+    Task,
+} from '../src'
 
 async function task(token: CancellationToken) {
     let i = 0
@@ -18,11 +22,9 @@ async function main() {
         setTimeout(() => cancel(), 3000)
     })
     
+    // other variations of instantiating token object
     // const { token, cancel } = CancellationToken.source()
-    // setTimeout(() => cancel(), 3000)
-
     // const [token, cancel] = CancellationToken.sourceArray()
-    // setTimeout(() => cancel(), 3000)
 
     try {
         await task(token)
@@ -32,7 +34,6 @@ async function main() {
         } else {
             throw error
         }
-        
     }
 }
 
