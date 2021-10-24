@@ -1,6 +1,7 @@
 import CancellationError from './CancellationError'
 
 const EMPTY_FUNCTION = () => {}
+const ALWAYS_FALSE = () => false
 
 export interface IBasicCancellationToken {
     isCancellationRequested: boolean
@@ -8,7 +9,7 @@ export interface IBasicCancellationToken {
 }
 
 export default class CancellationToken implements IBasicCancellationToken {
-    public readonly canBeCancelled = true
+    public readonly canBeCancelled: boolean = true
     private _isCancellationRequested: boolean = false
     private _cancellationError: CancellationError = new CancellationError()
     private _cancellationCallbacks: Set<(reason?: any) => void> = new Set()
@@ -19,7 +20,7 @@ export default class CancellationToken implements IBasicCancellationToken {
 
     public constructor (
         executor: (cancel: (reason?: any) => void) => void,
-        options?: { canBeCanceled: boolean },
+        options?: { canBeCanceled?: boolean },
     ) {
         const cancel = (reason?: any) => {
             this._isCancellationRequested = true
@@ -35,8 +36,8 @@ export default class CancellationToken implements IBasicCancellationToken {
         }
         executor(cancel)
 
-        if (options?.canBeCanceled) {
-            this.canBeCancelled = options.canBeCanceled
+        if (options) {
+            this.canBeCancelled = Boolean(options?.canBeCanceled)
         }
     }
 
@@ -62,6 +63,10 @@ export default class CancellationToken implements IBasicCancellationToken {
             if (token.isCancellationRequested) {
                 return token
             }
+        }
+
+        if (tokens.every(token => !token.canBeCancelled)) {
+            return CancellationToken.UNCANCELLABLE_TOKEN
         }
         
         const [combinedToken, cancelCombinedToken] = CancellationToken.sourceArray()
@@ -125,12 +130,12 @@ export default class CancellationToken implements IBasicCancellationToken {
 
     public onCancel(callback: (reason?: any) => void) {
         if (!this.canBeCancelled) {
-            return () => false
+            return ALWAYS_FALSE
         }
 
         if (this.isCancellationRequested) {
             callback(this._cancellationError?.reason)
-            return () => false
+            return ALWAYS_FALSE
         }
 
         this._cancellationCallbacks.add(callback)

@@ -319,3 +319,5 @@ longRunningTask 3
 
 ### Todo
 - write test
+- maybe seperate AsyncCancellationToken and SyncCancellationToken (await cancel(), onCancel(async () => {}))
+- maybe seperate AsyncCheckpoint SyncCheckpoint
