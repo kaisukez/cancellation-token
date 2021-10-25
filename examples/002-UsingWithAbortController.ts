@@ -25,7 +25,7 @@ async function main() {
         console.log('onCancel -> controller.abort()')
         controller.abort()
     })
-    setTimeout(() => cancel(), Math.floor(Math.random() * 400))
+    setTimeout(async () => await cancel(), Math.floor(Math.random() * 400))
 
     try {
         const html = await fetchData(token, controller.signal)
@@ -41,7 +41,7 @@ async function main() {
         }
     } finally {
         unregister()
-        cancel()
+        await cancel()
     }
 }
 

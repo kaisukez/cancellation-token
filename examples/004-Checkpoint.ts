@@ -55,11 +55,8 @@ async function task(token: CancellationToken) {
 
 async function main() {
     const token = new CancellationToken(cancel => {
-        setTimeout(() => cancel(), 1234)
+        setTimeout(async () => await cancel(), 1234)
     })
-    
-    // const { token, cancel } = CancellationToken.source()
-    // setTimeout(() => cancel(), 1234)
 
     await CancellationError.ignore(task(token))
 }

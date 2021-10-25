@@ -1,6 +1,6 @@
 import 'jest'
-import CancellationToken from './CancellationToken'
-import CancellationError from './CancellationError'
+import CancellationToken from '../src/CancellationToken'
+import CancellationError from '../src/CancellationError'
 
 const createUnregisterationTest = (token: CancellationToken) => {
     const test = {
@@ -72,22 +72,22 @@ describe('token created by user', () => {
 
 
     describe('after you run cancel function', () => {
-        it('should be cancelled', () => {
+        it('should be cancelled', async () => {
             for (const { token, cancel } of sources) {
                 expect(token.isCancellationRequested).toBe(false)
-                cancel()
+                await cancel()
                 expect(token.isCancellationRequested).toBe(true)
             }
         })
 
-        it('should throw a CancellationError with correct reason', () => {
+        it('should throw a CancellationError with correct reason', async () => {
             for (const { token, cancel } of sources) {
                 expect(() => {
                     token.throwIfCancellationRequested()
                 }).not.toThrow()
 
                 const uniqueReason = Symbol()
-                cancel(uniqueReason)
+                await cancel(uniqueReason)
                 
                 expect(() => {
                     token.throwIfCancellationRequested()
@@ -109,25 +109,25 @@ describe('token created by user', () => {
 
 
     describe('test onCancel', () => {
-        it('should trigger an onCancel function once after you call cancel function', () => {
+        it('should trigger an onCancel function once after you call cancel function', async () => {
             for (const { token, cancel } of sources) {
                 let count = 0
                 token.onCancel(() => {
                     count++
                 })
                 expect(count).toBe(0)
-                cancel()
+                await cancel()
                 expect(count).toBe(1)
 
                 // onCancel should be run once so the value of count should not be changed from now on
-                cancel()
+                await cancel()
                 expect(count).toBe(1)
-                cancel()
+                await cancel()
                 expect(count).toBe(1)
             }
         })
 
-        it('should trigger all onCancel functions once after you call cancel function', () => {
+        it('should trigger all onCancel functions once after you call cancel function', async () => {
             for (const { token, cancel } of sources) {
                 let count = 0
                 for (let i = 0; i < 10; i++) {
@@ -136,13 +136,13 @@ describe('token created by user', () => {
                     })
                 }
                 expect(count).toBe(0)
-                cancel()
+                await cancel()
                 expect(count).toBe(10)
 
                 // onCancel should be run once so the value of count should not be changed from now on
-                cancel()
+                await cancel()
                 expect(count).toBe(10)
-                cancel()
+                await cancel()
                 expect(count).toBe(10)
             }
         })
@@ -150,7 +150,7 @@ describe('token created by user', () => {
 
 
     describe('test unregister function', () => {
-        it('should not run onCancel function after you unregister it', () => {
+        it('should not run onCancel function after you unregister it', async () => {
             for (const { token, cancel } of sources) {
                 let count = 0
                 const unregister = token.onCancel(() => {
@@ -159,7 +159,7 @@ describe('token created by user', () => {
                 expect(count).toBe(0)
                 unregister()
                 expect(count).toBe(0)
-                cancel()
+                await cancel()
                 expect(count).toBe(0)
             }
         })
@@ -176,89 +176,89 @@ describe('token created by user', () => {
             }
         })
         
-        it('should unregister first onCancel function', () => {
+        it('should unregister first onCancel function', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[0].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             }
         })
 
-        it('should unregister second onCancel function', () => {
+        it('should unregister second onCancel function', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[1].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             }
         })
 
-        it('should unregister third onCancel function', () => {
+        it('should unregister third onCancel function', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[2].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             }
         })
 
-        it('should unregister first and second onCancel function', () => {
+        it('should unregister first and second onCancel function', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[0].unregister()
                 tests[1].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             }
         })
 
-        it('should unregister first and third onCancel function', () => {
+        it('should unregister first and third onCancel function', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[0].unregister()
                 tests[2].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             }
         })
 
-        it('should unregister second and third onCancel function', () => {
+        it('should unregister second and third onCancel function', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[1].unregister()
                 tests[2].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             }
         })
 
-        it('should unregister all onCancel functions', () => {
+        it('should unregister all onCancel functions', async () => {
             for (const { token, cancel } of sources) {
                 const tests = createUnregisterationTests(token, 3)
 
                 tests[0].unregister()
                 tests[1].unregister()
                 tests[2].unregister()
-                cancel()
+                await cancel()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(false)
@@ -409,46 +409,46 @@ describe('combining multiple tokens', () => {
 
         describe('after you run cancel function', () => {
             describe('isCancellationRequested', () => {
-                it('should be cancelled if some (but not all) tokens are cancelled', () => {
+                it('should be cancelled if some (but not all) tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.race(sources.map(source => source.token))
                     expect(combinedToken.isCancellationRequested).toBe(false)
-                    sources[1]?.cancel?.()
+                    await sources[1]?.cancel?.()
                     expect(combinedToken.isCancellationRequested).toBe(true)
                 })
     
-                it('should be cancelled if all tokens are cancelled', () => {
+                it('should be cancelled if all tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.race(sources.map(source => source.token))
                     expect(combinedToken.isCancellationRequested).toBe(false)
                     for (const source of sources) {
-                        source?.cancel?.()
+                        await source?.cancel?.()
                     }
                     expect(combinedToken.isCancellationRequested).toBe(true)
                 })
             })
 
             describe('throwIfCancellationRequested', () => {
-                it('should throw a CancellationError if some (but not all) tokens are cancelled', () => {
+                it('should throw a CancellationError if some (but not all) tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.race(sources.map(source => source.token))
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
                     }).not.toThrow()
-                    sources[1]?.cancel?.()
+                    await sources[1]?.cancel?.()
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
                     }).toThrow(CancellationError)
                 })
     
-                it('should throw a CancellationError if all tokens are cancelled', () => {
+                it('should throw a CancellationError if all tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.race(sources.map(source => source.token))
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
                     }).not.toThrow()
                     for (const source of sources) {
-                        source?.cancel?.()
+                        await source?.cancel?.()
                     }
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
@@ -458,7 +458,7 @@ describe('combining multiple tokens', () => {
         })
 
         describe('test onCancel', () => {
-            it('should trigger all onCancel functions once after some (but not all) tokens are cancelled', () => {
+            it('should trigger all onCancel functions once after some (but not all) tokens are cancelled', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 let count = 0
@@ -468,17 +468,17 @@ describe('combining multiple tokens', () => {
                     })
                 }
                 expect(count).toBe(0)
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(count).toBe(10)
 
                 // onCancel should be run once so the value of count should not be changed from now on
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(count).toBe(10)
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(count).toBe(10)
             })
 
-            it('should trigger all onCancel functions once after all tokens are cancelled', () => {
+            it('should trigger all onCancel functions once after all tokens are cancelled', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 let count = 0
@@ -489,24 +489,24 @@ describe('combining multiple tokens', () => {
                 }
                 expect(count).toBe(0)
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(10)
 
                 // onCancel should be run once so the value of count should not be changed from now on
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(10)
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(10)
             })
         })
 
         describe('test unregister function', () => {
-            it('should not run onCancel function after you unregister it', () => {
+            it('should not run onCancel function after you unregister it', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 let count = 0
@@ -516,7 +516,7 @@ describe('combining multiple tokens', () => {
                 expect(count).toBe(0)
                 unregister()
                 expect(count).toBe(0)
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(count).toBe(0)
             })
         })
@@ -531,82 +531,82 @@ describe('combining multiple tokens', () => {
                 }
             })
             
-            it('should unregister first onCancel function', () => {
+            it('should unregister first onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[0].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             })
     
-            it('should unregister second onCancel function', () => {
+            it('should unregister second onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[1].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             })
     
-            it('should unregister third onCancel function', () => {
+            it('should unregister third onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[2].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             })
     
-            it('should unregister first and second onCancel function', () => {
+            it('should unregister first and second onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[0].unregister()
                 tests[1].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             })
     
-            it('should unregister first and third onCancel function', () => {
+            it('should unregister first and third onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[0].unregister()
                 tests[2].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             })
     
-            it('should unregister second and third onCancel function', () => {
+            it('should unregister second and third onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[1].unregister()
                 tests[2].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             })
     
-            it('should unregister all onCancel functions', () => {
+            it('should unregister all onCancel functions', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.race(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
@@ -614,7 +614,7 @@ describe('combining multiple tokens', () => {
                 tests[0].unregister()
                 tests[1].unregister()
                 tests[2].unregister()
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(false)
@@ -699,46 +699,46 @@ describe('combining multiple tokens', () => {
 
         describe('after you run cancel function', () => {
             describe('isCancellationRequested', () => {
-                it('should not be cancelled if some (but not all) tokens are cancelled', () => {
+                it('should not be cancelled if some (but not all) tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.all(sources.map(source => source.token))
                     expect(combinedToken.isCancellationRequested).toBe(false)
-                    sources[1]?.cancel?.()
+                    await sources[1]?.cancel?.()
                     expect(combinedToken.isCancellationRequested).toBe(false)
                 })
     
-                it('should be cancelled if all tokens are cancelled', () => {
+                it('should be cancelled if all tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.all(sources.map(source => source.token))
                     expect(combinedToken.isCancellationRequested).toBe(false)
                     for (const source of sources) {
-                        source?.cancel?.()
+                        await source?.cancel?.()
                     }
                     expect(combinedToken.isCancellationRequested).toBe(true)
                 })
             })
 
             describe('throwIfCancellationRequested', () => {
-                it('should throw a CancellationError if some (but not all) tokens are cancelled', () => {
+                it('should throw a CancellationError if some (but not all) tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.all(sources.map(source => source.token))
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
                     }).not.toThrow()
-                    sources[1]?.cancel?.()
+                    await sources[1]?.cancel?.()
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
                     }).not.toThrow()
                 })
     
-                it('should throw a CancellationError if all tokens are cancelled', () => {
+                it('should throw a CancellationError if all tokens are cancelled', async () => {
                     const sources = createCancellableTokens(3)
                     const combinedToken = CancellationToken.all(sources.map(source => source.token))
                     for (const source of sources) {
                         expect(() => {
                             combinedToken.throwIfCancellationRequested()
                         }).not.toThrow()
-                        source?.cancel?.()
+                        await source?.cancel?.()
                     }
                     expect(() => {
                         combinedToken.throwIfCancellationRequested()
@@ -748,7 +748,7 @@ describe('combining multiple tokens', () => {
         })
 
         describe('test onCancel', () => {
-            it('should not trigger any onCancel function after some (but not all) tokens are cancelled', () => {
+            it('should not trigger any onCancel function after some (but not all) tokens are cancelled', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 let count = 0
@@ -758,11 +758,11 @@ describe('combining multiple tokens', () => {
                     })
                 }
                 expect(count).toBe(0)
-                sources[1]?.cancel?.()
+                await sources[1]?.cancel?.()
                 expect(count).toBe(0)
             })
 
-            it('should trigger all onCancel functions once after all tokens are cancelled', () => {
+            it('should trigger all onCancel functions once after all tokens are cancelled', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 let count = 0
@@ -773,26 +773,26 @@ describe('combining multiple tokens', () => {
                 }
                 for (const { cancel } of sources) {
                     expect(count).toBe(0)
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(10)
 
                 // onCancel should be run once so the value of count should not be changed from now on
                 for (const { cancel } of sources) {
                     expect(count).toBe(10)
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(10)
                 for (const { cancel } of sources) {
                     expect(count).toBe(10)
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(10)
             })
         })
 
         describe('test unregister function', () => {
-            it('should not run onCancel function after you unregister it', () => {
+            it('should not run onCancel function after you unregister it', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 let count = 0
@@ -803,7 +803,7 @@ describe('combining multiple tokens', () => {
                 unregister()
                 expect(count).toBe(0)
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(count).toBe(0)
             })
@@ -819,49 +819,49 @@ describe('combining multiple tokens', () => {
                 }
             })
             
-            it('should unregister first onCancel function', () => {
+            it('should unregister first onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[0].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             })
     
-            it('should unregister second onCancel function', () => {
+            it('should unregister second onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[1].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             })
     
-            it('should unregister third onCancel function', () => {
+            it('should unregister third onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
 
                 tests[2].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             })
     
-            it('should unregister first and second onCancel function', () => {
+            it('should unregister first and second onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
@@ -869,14 +869,14 @@ describe('combining multiple tokens', () => {
                 tests[0].unregister()
                 tests[1].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(true)
             })
     
-            it('should unregister first and third onCancel function', () => {
+            it('should unregister first and third onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
@@ -884,14 +884,14 @@ describe('combining multiple tokens', () => {
                 tests[0].unregister()
                 tests[2].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(true)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             })
     
-            it('should unregister second and third onCancel function', () => {
+            it('should unregister second and third onCancel function', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
@@ -899,14 +899,14 @@ describe('combining multiple tokens', () => {
                 tests[1].unregister()
                 tests[2].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(true)
                 expect(tests[1].isOnCancelCalled).toBe(false)
                 expect(tests[2].isOnCancelCalled).toBe(false)
             })
     
-            it('should unregister all onCancel functions', () => {
+            it('should unregister all onCancel functions', async () => {
                 const sources = createCancellableTokens(3)
                 const combinedToken = CancellationToken.all(sources.map(source => source.token))
                 const tests = createUnregisterationTests(combinedToken, 3)
@@ -915,7 +915,7 @@ describe('combining multiple tokens', () => {
                 tests[1].unregister()
                 tests[2].unregister()
                 for (const { cancel } of sources) {
-                    cancel?.()
+                    await cancel?.()
                 }
                 expect(tests[0].isOnCancelCalled).toBe(false)
                 expect(tests[1].isOnCancelCalled).toBe(false)

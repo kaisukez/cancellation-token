@@ -19,7 +19,7 @@ async function task(token: CancellationToken) {
 
 async function main() {
     const token = new CancellationToken(cancel => {
-        setTimeout(() => cancel(), 3000)
+        setTimeout(async () => await cancel(), 3000)
     })
     
     // other variations of instantiating token object

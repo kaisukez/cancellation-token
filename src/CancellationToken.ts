@@ -12,7 +12,7 @@ export default class CancellationToken implements IBasicCancellationToken {
     public readonly canBeCancelled: boolean = true
     private _isCancellationRequested: boolean = false
     private _cancellationError: CancellationError = new CancellationError()
-    private _cancellationCallbacks: Set<(reason?: any) => void> = new Set()
+    private _cancellationCallbacks: Set<(reason?: any) => void | Promise<void>> = new Set()
     // private _unregisterFunctions: (() => boolean)[] = []
 
     public static readonly UNCANCELLABLE_TOKEN = new CancellationToken(EMPTY_FUNCTION, { canBeCanceled: false })
@@ -22,17 +22,20 @@ export default class CancellationToken implements IBasicCancellationToken {
         executor: (cancel: (reason?: any) => void) => void,
         options?: { canBeCanceled?: boolean },
     ) {
-        const cancel = (reason?: any) => {
+        const cancel = async (reason?: any) => {
             this._isCancellationRequested = true
             this._cancellationError = new CancellationError(reason)
             
             for (const callback of this._cancellationCallbacks) {
-                callback(reason)
+                await callback(reason)
 
                 // Delete registered callback after it was called.
                 // You can delete item from Set while iterating (https://stackoverflow.com/questions/28306756/is-it-safe-to-delete-elements-in-a-set-while-iterating-with-for-of).
                 this._cancellationCallbacks.delete(callback)
             }
+
+            // await Promise.all([...this._cancellationCallbacks].map(callback => callback(reason)))
+            // this._cancellationCallbacks.clear()
         }
         executor(cancel)
 
@@ -71,8 +74,8 @@ export default class CancellationToken implements IBasicCancellationToken {
         
         const [combinedToken, cancelCombinedToken] = CancellationToken.sourceArray()
         const unregisterFunctions: ((reason?: any) => void)[] = []
-        const cancelCombinedTokenAndUnregisterAllCallbacks = (reason: any) => {
-            cancelCombinedToken(reason)
+        const cancelCombinedTokenAndUnregisterAllCallbacks = async (reason: any) => {
+            await cancelCombinedToken(reason)
             for (const unregisterFunction of unregisterFunctions) {
                 unregisterFunction()
             }
@@ -95,7 +98,7 @@ export default class CancellationToken implements IBasicCancellationToken {
 
         const [combinedToken, cancelCombinedToken] = CancellationToken.sourceArray()
         let currentCancelledCount = 0
-        const onCancel = (reason: any) => {
+        const onCancel = async (reason: any) => {
             if (++currentCancelledCount === tokens.length) {
                 const reasons: any[] = []
                 for (const token of tokens) {
@@ -109,7 +112,7 @@ export default class CancellationToken implements IBasicCancellationToken {
                         }
                     }
                 }
-                cancelCombinedToken(reason)
+                await cancelCombinedToken(reason)
             }
         }
         for (const token of tokens) {
