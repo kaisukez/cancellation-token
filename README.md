@@ -37,7 +37,7 @@ async function task(token: CancellationToken) {
 
 async function main() {
     const token = new CancellationToken(cancel => {
-        setTimeout(() => cancel(), 3000)
+        setTimeout(async () => await cancel(), 3000)
     })
     
     // other variations of instantiation
@@ -104,7 +104,7 @@ async function main() {
         console.log('onCancel -> controller.abort()')
         controller.abort()
     })
-    setTimeout(() => cancel(), 400)
+    setTimeout(async () => await cancel(), 400)
 
     try {
         const html = await fetchData(token, controller.signal)
@@ -120,7 +120,7 @@ async function main() {
         }
     } finally {
         unregister()
-        cancel()
+        await cancel()
     }
 }
 
@@ -175,17 +175,17 @@ async function main() {
     const token1 = new CancellationToken(cancel => {
         const timeout = 100
         console.log(`token1 timeout = ${timeout}`)
-        setTimeout(() => {
+        setTimeout(async () => {
             console.log('token1 is canceled')
-            cancel()
+            await cancel()
         }, timeout)
     })
     const token2 = new CancellationToken(cancel => {
         const timeout = 300
         console.log(`token2 timeout = ${timeout}`)
-        setTimeout(() => {
+        setTimeout(async () => {
             console.log('token2 is canceled')
-            cancel()
+            await cancel()
         }, timeout)
     })
 
@@ -296,7 +296,7 @@ async function task(token: CancellationToken) {
 
 async function main() {
     const token = new CancellationToken(cancel => {
-        setTimeout(() => cancel(), 1234)
+        setTimeout(async () => await cancel(), 1234)
     })
 
     await CancellationError.ignore(task(token))

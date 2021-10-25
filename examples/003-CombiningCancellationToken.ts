@@ -21,17 +21,17 @@ async function main() {
     const token1 = new CancellationToken(cancel => {
         const timeout = 100
         console.log(`token1 timeout = ${timeout}`)
-        setTimeout(() => {
+        setTimeout(async () => {
             console.log('token1 is canceled')
-            cancel()
+            await cancel()
         }, timeout)
     })
     const token2 = new CancellationToken(cancel => {
         const timeout = 300
         console.log(`token2 timeout = ${timeout}`)
-        setTimeout(() => {
+        setTimeout(async () => {
             console.log('token2 is canceled')
-            cancel()
+            await cancel()
         }, timeout)
     })
 
