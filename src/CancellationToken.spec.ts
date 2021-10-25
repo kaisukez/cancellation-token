@@ -1,6 +1,6 @@
 import 'jest'
-import CancellationToken from '../src/CancellationToken'
-import CancellationError from '../src/CancellationError'
+import CancellationToken from './CancellationToken'
+import CancellationError from './CancellationError'
 
 const createUnregisterationTest = (token: CancellationToken) => {
     const test = {
