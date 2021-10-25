@@ -1,7 +1,8 @@
 import {
     CancellationToken,
     CancellationError,
-    Checkpoint,
+    SyncCheckpoint,
+    AsyncCheckpoint,
     Task,
 } from '../src'
 
@@ -21,14 +22,14 @@ async function task(token: CancellationToken) {
     await longRunningTask(1)
 
     // #2 - is equivalent to #1
-    await Checkpoint.before(token, longRunningTask(2))
+    await AsyncCheckpoint.before(token, longRunningTask(2))
 
     // # 3
     await longRunningTask(3)
     token.throwIfCancellationRequested()
 
     // #4 - is equivalent to #3
-    await Checkpoint.after(token, longRunningTask(4))
+    await AsyncCheckpoint.after(token, longRunningTask(4))
 
     // -------------------------------------------
 
@@ -38,15 +39,15 @@ async function task(token: CancellationToken) {
     token.throwIfCancellationRequested()
 
     // #6 - is equivalent to #5
-    Checkpoint.beforeAfterSync(token, () => longRunningTaskSync(6))
+    SyncCheckpoint.beforeAfter(token, () => longRunningTaskSync(6))
 
     // -------------------------------------------
 
     // #7
-    await Checkpoint.before(token, Promise.resolve())
+    await AsyncCheckpoint.before(token, Promise.resolve())
 
     // #8
-    Checkpoint.afterSync(token, () => {})
+    SyncCheckpoint.after(token, () => {})
 
     // #9 - is equivalent to #7 and #8
     // but #9 is preferred

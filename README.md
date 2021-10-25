@@ -10,7 +10,7 @@ This library's idea is based on this proposal [tc39/proposal-cancelable-promises
 
 I copied some code from https://github.com/conradreuter/cancellationtoken which is the implementation of the withdrawn proposal.
 
-I also added some useful features that [conradreuter/cancellationtoken](https://github.com/conradreuter/cancellationtoken) doesn't have such as [Revealing Constructor Pattern](https://github.com/tc39/proposal-cancelable-promises/blob/0e769fda8e16bff0feffe964fddc43dcd86668ba/Cancel%20Tokens.md#for-the-creator), `CancellationError.ignore` and `Checkpoint.before`.
+I also added some useful features that [conradreuter/cancellationtoken](https://github.com/conradreuter/cancellationtoken) doesn't have such as [Revealing Constructor Pattern](https://github.com/tc39/proposal-cancelable-promises/blob/0e769fda8e16bff0feffe964fddc43dcd86668ba/Cancel%20Tokens.md#for-the-creator), `CancellationError.ignore` and `AsyncCheckpoint.before`.
 
 
 ## Examples
@@ -242,7 +242,8 @@ result [ undefined, undefined, undefined, undefined ]
 import {
     CancellationToken,
     CancellationError,
-    Checkpoint,
+    SyncCheckpoint,
+    AsyncCheckpoint,
     Task,
 } from '@kaisukez/cancellation-token'
 
@@ -262,14 +263,14 @@ async function task(token: CancellationToken) {
     await longRunningTask(1)
 
     // #2 - is equivalent to #1
-    await Checkpoint.before(token, longRunningTask(2))
+    await AsyncCheckpoint.before(token, longRunningTask(2))
 
     // # 3
     await longRunningTask(3)
     token.throwIfCancellationRequested()
 
     // #4 - is equivalent to #3
-    await Checkpoint.after(token, longRunningTask(4))
+    await AsyncCheckpoint.after(token, longRunningTask(4))
 
     // -------------------------------------------
 
@@ -279,15 +280,15 @@ async function task(token: CancellationToken) {
     token.throwIfCancellationRequested()
 
     // #6 - is equivalent to #5
-    Checkpoint.beforeAfterSync(token, () => longRunningTaskSync(6))
+    SyncCheckpoint.beforeAfter(token, () => longRunningTaskSync(6))
 
     // -------------------------------------------
 
     // #7
-    await Checkpoint.before(token, Promise.resolve())
+    await AsyncCheckpoint.before(token, Promise.resolve())
 
     // #8
-    Checkpoint.afterSync(token, () => {})
+    SyncCheckpoint.after(token, () => {})
 
     // #9 - is equivalent to #7 and #8
     // but #9 is preferred
@@ -319,5 +320,3 @@ longRunningTask 3
 
 ### Todo
 - write test
-- maybe seperate AsyncCancellationToken and SyncCancellationToken (await cancel(), onCancel(async () => {}))
-- maybe seperate AsyncCheckpoint SyncCheckpoint
