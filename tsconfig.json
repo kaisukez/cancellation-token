@@ -4,14 +4,13 @@
         "target": "es2015",
         "declaration": true,
         "outDir": "./dist",
-        "strict": true
+        "strict": true,
+        "baseUrl": "."
     },
     "include": [
-        "src/**/*",
-        "examples/**/*"
+        "src/**/*"
     ],
     "exclude": [
-        "node_modules",
         "**/*.spec.ts"
     ]
 }

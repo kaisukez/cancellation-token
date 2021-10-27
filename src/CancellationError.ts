@@ -3,7 +3,7 @@ export default class CancellationError {
         public readonly reason?: any,
     ) {}
 
-    public static async ignore<T>(promise: Promise<T>) {
+    public static async ignoreAsync<T>(promise: Promise<T>) {
         try {
             return await promise
         } catch (error) {

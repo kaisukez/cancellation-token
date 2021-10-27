@@ -1,9 +1,33 @@
 {
-  "engines": {
-    "node": "16.10.0"
+  "name": "@kaisukez/cancellation-token",
+  "version": "1.0.0",
+  "description": "This library provides you ability to cancel async function",
+  "author": "Nattapon Chantasiriworawat <nattapon.ctsr@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaisukez/cancellation-token.git"
   },
+  "bugs": {
+    "url": "https://github.com/kaisukez/cancellation-token/issues"
+  },
+  "homepage": "https://github.com/kaisukez/cancellation-token",
+  "keywords": [
+    "abort",
+    "cancel",
+    "cancellable",
+    "cancellation",
+    "controller",
+    "promise",
+    "token"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "test": "jest -c jest.config.js --coverage"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
