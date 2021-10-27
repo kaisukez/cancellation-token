@@ -1,25 +1,21 @@
 import CancellationError from './CancellationError'
 
 const EMPTY_FUNCTION = () => {}
+const EMPTY_ASYNC_FUNCTION = async () => {}
 const ALWAYS_FALSE = () => false
 
-export interface IBasicCancellationToken {
-    isCancellationRequested: boolean
-    throwIfCancellationRequested(): void
-}
-
-export default class CancellationToken implements IBasicCancellationToken {
+export default class CancellationToken {
     public readonly canBeCancelled: boolean = true
     private _isCancellationRequested: boolean = false
     private _cancellationError: CancellationError = new CancellationError()
-    private _cancellationCallbacks: Set<(reason?: any) => void | Promise<void>> = new Set()
+    private _cancellationCallbacks: Set<((reason?: any) => void) | ((reason?: any) => Promise<void>)> = new Set()
     // private _unregisterFunctions: (() => boolean)[] = []
 
     public static readonly UNCANCELLABLE_TOKEN = new CancellationToken(EMPTY_FUNCTION, { canBeCanceled: false })
     public static readonly ALREADY_CANCELLED_TOKEN = new CancellationToken(cancel => cancel())
 
     public constructor (
-        executor: (cancel: (reason?: any) => void) => void,
+        executor: (cancel: (reason?: any) => Promise<void>) => void,
         options?: { canBeCanceled?: boolean },
     ) {
         const cancel = async (reason?: any) => {
@@ -45,7 +41,7 @@ export default class CancellationToken implements IBasicCancellationToken {
     }
 
     public static source() {
-        let cancel: (reason?: any) => void = EMPTY_FUNCTION
+        let cancel: (reason?: any) => Promise<void> = EMPTY_ASYNC_FUNCTION
         const token = new CancellationToken(_cancel => cancel = _cancel)
         return {
             token,
@@ -53,7 +49,7 @@ export default class CancellationToken implements IBasicCancellationToken {
         }
     }
 
-    public static sourceArray(): [CancellationToken, (reason?: any) => void] {
+    public static sourceArray(): [CancellationToken, (reason?: any) => Promise<void>] {
         const { token, cancel } = CancellationToken.source()
         return [
             token,
@@ -73,7 +69,7 @@ export default class CancellationToken implements IBasicCancellationToken {
         }
         
         const [combinedToken, cancelCombinedToken] = CancellationToken.sourceArray()
-        const unregisterFunctions: ((reason?: any) => void)[] = []
+        const unregisterFunctions: (() => boolean)[] = []
         const cancelCombinedTokenAndUnregisterAllCallbacks = async (reason: any) => {
             await cancelCombinedToken(reason)
             for (const unregisterFunction of unregisterFunctions) {
@@ -131,7 +127,7 @@ export default class CancellationToken implements IBasicCancellationToken {
         }
     }
 
-    public onCancel(callback: (reason?: any) => void) {
+    public onCancel(callback: ((reason?: any) => void) | ((reason?: any) => Promise<void>)) {
         if (!this.canBeCancelled) {
             return ALWAYS_FALSE
         }

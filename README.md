@@ -1,17 +1,20 @@
 # @kaisukez/cancellation-token
 
-## Installation
-```
-npm i @kaisukez/cancellation-token
-```
-
 ## What is this library
 This library's idea is based on this proposal [tc39/proposal-cancelable-promises](https://github.com/tc39/proposal-cancelable-promises) which is actually great proposal but it was withdrawn for some reason.
 
 I copied some code from https://github.com/conradreuter/cancellationtoken which is the implementation of the withdrawn proposal.
 
-I also added some useful features that [conradreuter/cancellationtoken](https://github.com/conradreuter/cancellationtoken) doesn't have such as [Revealing Constructor Pattern](https://github.com/tc39/proposal-cancelable-promises/blob/0e769fda8e16bff0feffe964fddc43dcd86668ba/Cancel%20Tokens.md#for-the-creator), `CancellationError.ignore` and `AsyncCheckpoint.before`.
+I also added some useful features that [conradreuter/cancellationtoken](https://github.com/conradreuter/cancellationtoken) doesn't have such as
+- `new CancellationToken(cancel => {})` [Revealing Constructor Pattern](https://github.com/tc39/proposal-cancelable-promises/blob/0e769fda8e16bff0feffe964fddc43dcd86668ba/Cancel%20Tokens.md#for-the-creator) (from the withdrawn proposal)
+- `await CancellationError.ignoreAsync(token, promise)` (to ignore CancellationError in one line without using try-catch)
+- `SyncCheckpoint.before(token, () => yourFunction())` (to throw CancellationError if the specified token is already cancelled before running function, in one line)
+- `await cancel()` async cancel function (so that you can wait all async onCancel functions to finish before you can move on)
 
+## Installation
+```
+npm i @kaisukez/cancellation-token
+```
 
 ## Examples
 ### 1. Basic usage
@@ -189,13 +192,13 @@ async function main() {
         }, timeout)
     })
 
-    // use CancellationError.ignore
+    // use CancellationError.ignoreAsync
     // so that you don't have to try-catch CancellationError
     const result = await Promise.all([
-        CancellationError.ignore(task(token1, 1)),
-        CancellationError.ignore(task(token2, 2)),
-        CancellationError.ignore(task(CancellationToken.race([token1, token2]), 3)),
-        CancellationError.ignore(task(CancellationToken.all([token1, token2]), 4)),
+        CancellationError.ignoreAsync(task(token1, 1)),
+        CancellationError.ignoreAsync(task(token2, 2)),
+        CancellationError.ignoreAsync(task(CancellationToken.race([token1, token2]), 3)),
+        CancellationError.ignoreAsync(task(CancellationToken.all([token1, token2]), 4)),
     ])
     console.log('result', result)
 }
@@ -300,7 +303,7 @@ async function main() {
         setTimeout(async () => await cancel(), 1234)
     })
 
-    await CancellationError.ignore(task(token))
+    await CancellationError.ignoreAsync(task(token))
 }
 
 ;(async () => {
@@ -317,6 +320,3 @@ longRunningTask 1
 longRunningTask 2
 longRunningTask 3
 ```
-
-### Todo
-- write test

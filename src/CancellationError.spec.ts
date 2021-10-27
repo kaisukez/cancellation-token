@@ -13,16 +13,16 @@ describe('async', () => {
             await sleep(1)
             throw error
         }
-        expect(task()).rejects.toBe(error)
+        await expect(task()).rejects.toBe(error)
     })
 
-    it('should throw an Error even if you use CancellationError.ignore', async () => {
+    it('should throw an Error even if you use CancellationError.ignoreAsync', async () => {
         const error = new Error('error')
         async function task() {
             await sleep(1)
             throw error
         }
-        expect(CancellationError.ignore(task())).rejects.toBe(error)
+        await expect(CancellationError.ignoreAsync(task())).rejects.toBe(error)
     })
     
     it('should throw a CancellationError', async () => {
@@ -38,7 +38,7 @@ describe('async', () => {
             token.throwIfCancellationRequested()
         }
     
-        expect(task(token)).rejects.toBeInstanceOf(CancellationError)
+        await expect(task(token)).rejects.toBeInstanceOf(CancellationError)
     })
 
     it('should not throw a CancellationError', async () => {
@@ -54,7 +54,7 @@ describe('async', () => {
             token.throwIfCancellationRequested()
         }
     
-        expect(CancellationError.ignore(task(token))).resolves.toBe(undefined)
+        await expect(CancellationError.ignoreAsync(task(token))).resolves.toBe(undefined)
     })
 })
 
@@ -75,7 +75,7 @@ describe('sync', () => {
         expect(() => CancellationError.ignoreSync(() => task())).toThrow(error)
     })
     
-    it('should throw a CancellationError', () => {
+    it('should throw a CancellationError', async () => {
         const token = new CancellationToken(async cancel => {
             await cancel()
         })
@@ -85,7 +85,7 @@ describe('sync', () => {
             token.throwIfCancellationRequested()
         }
     
-        expect(() => task(token)).rejects.toBeInstanceOf(CancellationError)
+        await expect(task(token)).rejects.toBeInstanceOf(CancellationError)
     })
 
     it('should not throw an error', async () => {
