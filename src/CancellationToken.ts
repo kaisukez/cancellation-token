@@ -26,13 +26,16 @@ export default class CancellationToken implements IBasicCancellationToken {
             this._isCancellationRequested = true
             this._cancellationError = new CancellationError(reason)
 
-            await Promise.all([...this._cancellationCallbacks].map(async callback => {
-                await callback(reason)
-
-                // Delete registered callback after it was called.
-                // You can delete item from Set while iterating (https://stackoverflow.com/questions/28306756/is-it-safe-to-delete-elements-in-a-set-while-iterating-with-for-of).
-                this._cancellationCallbacks.delete(callback)
-            }))
+            const maybeAsyncFunctions = [...this._cancellationCallbacks]
+            if (maybeAsyncFunctions.length) {
+                await Promise.all(maybeAsyncFunctions.map(async callback => {
+                    await callback(reason)
+    
+                    // Delete registered callback after it was called.
+                    // You can delete item from Set while iterating (https://stackoverflow.com/questions/28306756/is-it-safe-to-delete-elements-in-a-set-while-iterating-with-for-of).
+                    this._cancellationCallbacks.delete(callback)
+                }))
+            }
         }
         executor(cancel)
 
