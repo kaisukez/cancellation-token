@@ -56,28 +56,28 @@ describe('AsyncCheckpoint', () => {
     describe('AsyncCheckpoint.before', () => {
         it('should throw a CancellationError', async () => {
             const { token, cancel } = CancellationToken.source()
-            await expect(AsyncCheckpoint.before(token, Promise.resolve())).resolves.toBeUndefined()
+            await expect(AsyncCheckpoint.before(token, () => Promise.resolve())).resolves.toBeUndefined()
             await cancel()
-            await expect(AsyncCheckpoint.before(token, Promise.resolve())).rejects.toBeInstanceOf(CancellationError)
+            await expect(AsyncCheckpoint.before(token, () => Promise.resolve())).rejects.toBeInstanceOf(CancellationError)
         })
 
         it('should return correct value', async () => {
             const token = new CancellationToken(() => {})
             const value = Symbol()
-            await expect(AsyncCheckpoint.before(token, Promise.resolve(value))).resolves.toBe(value)
+            await expect(AsyncCheckpoint.before(token, () => Promise.resolve(value))).resolves.toBe(value)
         })
     })
 
     describe('AsyncCheckpoint.after', () => {
         it('should throw a CancellationError', async () => {
             const { token, cancel } = CancellationToken.source()
-            await expect(AsyncCheckpoint.after(token, cancel())).rejects.toBeInstanceOf(CancellationError)
+            await expect(AsyncCheckpoint.after(token, () => cancel())).rejects.toBeInstanceOf(CancellationError)
         })
 
         it('should return correct value', async () => {
             const token = new CancellationToken(() => {})
             const value = Symbol()
-            await expect(AsyncCheckpoint.after(token, Promise.resolve(value))).resolves.toBe(value)
+            await expect(AsyncCheckpoint.after(token, () => Promise.resolve(value))).resolves.toBe(value)
         })
     })
 
@@ -85,19 +85,19 @@ describe('AsyncCheckpoint', () => {
         it('should throw a CancellationError', async () => {
             // test before
             const [token1, cancel1] = CancellationToken.sourceArray()
-            await expect(AsyncCheckpoint.before(token1, Promise.resolve())).resolves.toBeUndefined()
+            await expect(AsyncCheckpoint.before(token1, () => Promise.resolve())).resolves.toBeUndefined()
             await cancel1()
-            await expect(AsyncCheckpoint.before(token1, Promise.resolve())).rejects.toBeInstanceOf(CancellationError)
+            await expect(AsyncCheckpoint.before(token1, () => Promise.resolve())).rejects.toBeInstanceOf(CancellationError)
     
             // test after
             const [token2, cancel2] = CancellationToken.sourceArray()
-            await expect(AsyncCheckpoint.after(token2, cancel2())).rejects.toBeInstanceOf(CancellationError)
+            await expect(AsyncCheckpoint.after(token2, () => cancel2())).rejects.toBeInstanceOf(CancellationError)
         })
 
         it('should return correct value', async () => {
             const token = new CancellationToken(() => {})
             const value = Symbol()
-            await expect(AsyncCheckpoint.beforeAfter(token, Promise.resolve(value))).resolves.toBe(value)
+            await expect(AsyncCheckpoint.beforeAfter(token, () => Promise.resolve(value))).resolves.toBe(value)
         })
     })
 })

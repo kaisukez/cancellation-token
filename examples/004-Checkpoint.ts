@@ -22,14 +22,14 @@ async function task(token: CancellationToken) {
     await longRunningTask(1)
 
     // #2 - is equivalent to #1
-    await AsyncCheckpoint.before(token, longRunningTask(2))
+    await AsyncCheckpoint.before(token, () => longRunningTask(2))
 
     // # 3
     await longRunningTask(3)
     token.throwIfCancellationRequested()
 
     // #4 - is equivalent to #3
-    await AsyncCheckpoint.after(token, longRunningTask(4))
+    await AsyncCheckpoint.after(token, () => longRunningTask(4))
 
     // -------------------------------------------
 
@@ -44,7 +44,7 @@ async function task(token: CancellationToken) {
     // -------------------------------------------
 
     // #7
-    await AsyncCheckpoint.before(token, Promise.resolve())
+    await AsyncCheckpoint.before(token, () => Promise.resolve())
 
     // #8
     SyncCheckpoint.after(token, () => {})
