@@ -1,6 +1,6 @@
 {
   "name": "@kaisukez/cancellation-token",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "This library provides you ability to cancel async function",
   "author": "Nattapon Chantasiriworawat <nattapon.ctsr@gmail.com>",
   "license": "MIT",
