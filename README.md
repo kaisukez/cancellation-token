@@ -7,9 +7,9 @@ I copied some code from https://github.com/conradreuter/cancellationtoken which 
 
 I also added some useful features that [conradreuter/cancellationtoken](https://github.com/conradreuter/cancellationtoken) doesn't have such as
 - `new CancellationToken(cancel => {})` [Revealing Constructor Pattern](https://github.com/tc39/proposal-cancelable-promises/blob/0e769fda8e16bff0feffe964fddc43dcd86668ba/Cancel%20Tokens.md#for-the-creator) (from the withdrawn proposal)
-- `await CancellationError.ignoreAsync(() => promise)` (to ignore CancellationError in one line without using try-catch)
-- `AyncCheckpoint.after(token, () => yourFunction())` (to throw CancellationError if the specified token is already cancelled before running function, in one line)
-- `await cancel()` async cancel function (so that you can wait all async onCancel functions to finish before you can move on)
+- `await CancellationError.ignoreAsync(() => promise)` use to ignore CancellationError in one line without using try-catch
+- `AyncCheckpoint.before(token, () => yourFunction())` use to throw CancellationError if the specified token is already cancelled before running function, in one line (you can also use `AyncCheckpoint.after` and `AyncCheckpoint.beforeAfter`)
+- `await cancel()` async cancel function (so that you can wait all async onCancel functions to finish before you move on)
 
 ## Installation
 ```
