@@ -3,9 +3,9 @@ export default class CancellationError {
         public readonly reason?: any,
     ) {}
 
-    public static async ignoreAsync<T>(promise: Promise<T>) {
+    public static async ignoreAsync<T>(promise: () => Promise<T>): Promise<T|undefined> {
         try {
-            return await promise
+            return await promise()
         } catch (error) {
             if (error instanceof CancellationError) {
                 return
@@ -15,7 +15,7 @@ export default class CancellationError {
         }
     }
 
-    public static ignoreSync(func: Function) {
+    public static ignoreSync<T>(func: () => T): T|undefined {
         try {
             return func()
         } catch (error) {
