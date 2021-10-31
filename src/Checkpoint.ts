@@ -21,21 +21,21 @@ export class SyncCheckpoint {
 }
 
 export class AsyncCheckpoint {
-    public static async before<T>(token: CancellationToken, promise: T|Promise<T>): Promise<T> {
+    public static async before<T>(token: CancellationToken, func: () => Promise<T>): Promise<T> {
         token.throwIfCancellationRequested()
-        return await promise
+        return await func()
     }
     
-    public static async after<T>(token: CancellationToken, promise: T|Promise<T>): Promise<T> {
-        const result = await promise
+    public static async after<T>(token: CancellationToken, func: () => Promise<T>): Promise<T> {
+        const result = await func
         token.throwIfCancellationRequested()
-        return result
+        return result()
     }
     
-    public static async beforeAfter<T>(token: CancellationToken, promise: T|Promise<T>): Promise<T> {
+    public static async beforeAfter<T>(token: CancellationToken, func: () => Promise<T>): Promise<T> {
         token.throwIfCancellationRequested()
-        const result = await promise
+        const result = await func
         token.throwIfCancellationRequested()
-        return result
+        return result()
     }
 }
