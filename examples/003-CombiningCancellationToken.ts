@@ -38,10 +38,10 @@ async function main() {
     // use CancellationError.ignoreAsync
     // so that you don't have to try-catch CancellationError
     const result = await Promise.all([
-        CancellationError.ignoreAsync(task(token1, 1)),
-        CancellationError.ignoreAsync(task(token2, 2)),
-        CancellationError.ignoreAsync(task(CancellationToken.race([token1, token2]), 3)),
-        CancellationError.ignoreAsync(task(CancellationToken.all([token1, token2]), 4)),
+        CancellationError.ignoreAsync(() => task(token1, 1)),
+        CancellationError.ignoreAsync(() => task(token2, 2)),
+        CancellationError.ignoreAsync(() => task(CancellationToken.race([token1, token2]), 3)),
+        CancellationError.ignoreAsync(() => task(CancellationToken.all([token1, token2]), 4)),
     ])
     console.log('result', result)
 }

@@ -22,7 +22,7 @@ describe('async', () => {
             await sleep(1)
             throw error
         }
-        await expect(CancellationError.ignoreAsync(task())).rejects.toBe(error)
+        await expect(CancellationError.ignoreAsync(() => task())).rejects.toBe(error)
     })
     
     it('should throw a CancellationError', async () => {
@@ -54,7 +54,7 @@ describe('async', () => {
             token.throwIfCancellationRequested()
         }
     
-        await expect(CancellationError.ignoreAsync(task(token))).resolves.toBe(undefined)
+        await expect(CancellationError.ignoreAsync(() => task(token))).resolves.toBe(undefined)
     })
 })
 

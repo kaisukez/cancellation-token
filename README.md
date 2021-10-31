@@ -7,7 +7,7 @@ I copied some code from https://github.com/conradreuter/cancellationtoken which 
 
 I also added some useful features that [conradreuter/cancellationtoken](https://github.com/conradreuter/cancellationtoken) doesn't have such as
 - `new CancellationToken(cancel => {})` [Revealing Constructor Pattern](https://github.com/tc39/proposal-cancelable-promises/blob/0e769fda8e16bff0feffe964fddc43dcd86668ba/Cancel%20Tokens.md#for-the-creator) (from the withdrawn proposal)
-- `await CancellationError.ignoreAsync(token, promise)` (to ignore CancellationError in one line without using try-catch)
+- `await CancellationError.ignoreAsync(() => promise)` (to ignore CancellationError in one line without using try-catch)
 - `SyncCheckpoint.before(token, () => yourFunction())` (to throw CancellationError if the specified token is already cancelled before running function, in one line)
 - `await cancel()` async cancel function (so that you can wait all async onCancel functions to finish before you can move on)
 
@@ -195,10 +195,10 @@ async function main() {
     // use CancellationError.ignoreAsync
     // so that you don't have to try-catch CancellationError
     const result = await Promise.all([
-        CancellationError.ignoreAsync(task(token1, 1)),
-        CancellationError.ignoreAsync(task(token2, 2)),
-        CancellationError.ignoreAsync(task(CancellationToken.race([token1, token2]), 3)),
-        CancellationError.ignoreAsync(task(CancellationToken.all([token1, token2]), 4)),
+        CancellationError.ignoreAsync(() => task(token1, 1)),
+        CancellationError.ignoreAsync(() => task(token2, 2)),
+        CancellationError.ignoreAsync(() => task(CancellationToken.race([token1, token2]), 3)),
+        CancellationError.ignoreAsync(() => task(CancellationToken.all([token1, token2]), 4)),
     ])
     console.log('result', result)
 }
