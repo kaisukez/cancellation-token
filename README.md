@@ -303,7 +303,7 @@ async function main() {
         setTimeout(async () => await cancel(), 1234)
     })
 
-    await CancellationError.ignoreAsync(task(token))
+    await CancellationError.ignoreAsync(() => task(token))
 }
 
 ;(async () => {
