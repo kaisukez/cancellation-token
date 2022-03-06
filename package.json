@@ -25,8 +25,18 @@
     "dist"
   ],
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsup src/index.ts --format cjs,esm --dts",
     "test": "jest -c jest.config.js --coverage"
   },
   "devDependencies": {
@@ -37,6 +47,7 @@
     "node-abort-controller": "^3.0.1",
     "node-fetch": "^2.5.12",
     "ts-jest": "^27.1.3",
+    "tsup": "^5.11.13",
     "typescript": "^4.5.5"
   }
 }

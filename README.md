@@ -16,6 +16,29 @@ I also added some useful features that [conradreuter/cancellationtoken](https://
 npm i @kaisukez/cancellation-token
 ```
 
+## How to import
+This package ships both ESM and CJS formats
+### ES Modules (ESM)
+```js
+import {
+    CancellationToken,
+    CancellationError,
+    SyncCheckpoint,
+    AsyncCheckpoint,
+    Task,
+} from '@kaisukez/cancellation-token'
+```
+### CommonJS (CJS)
+```js
+const {
+    CancellationToken,
+    CancellationError,
+    SyncCheckpoint,
+    AsyncCheckpoint,
+    Task,
+} = require('@kaisukez/cancellation-token')
+```
+
 ## Examples
 ### 1. Basic usage
 ```ts
