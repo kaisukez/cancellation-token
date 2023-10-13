@@ -1,6 +1,6 @@
 import CancellationToken from './CancellationToken'
 import CancellationError from './CancellationError'
-import { SyncCheckpoint, AsyncCheckpoint } from './Checkpoint'
+import {AsyncCheckpoint, SyncCheckpoint} from './Checkpoint'
 import Task from './Task'
 
 export {
