@@ -25,13 +25,13 @@ export class AsyncCheckpoint {
         token.throwIfCancellationRequested()
         return await func()
     }
-    
+
     public static async after<T>(token: CancellationToken, func: () => Promise<T>): Promise<T> {
         const result = await func()
         token.throwIfCancellationRequested()
         return result
     }
-    
+
     public static async beforeAfter<T>(token: CancellationToken, func: () => Promise<T>): Promise<T> {
         token.throwIfCancellationRequested()
         const result = await func()

@@ -1,7 +1,9 @@
 import CancellationError from './CancellationError'
 
-const EMPTY_FUNCTION = () => {}
-const EMPTY_ASYNC_FUNCTION = async () => {}
+const EMPTY_FUNCTION = () => {
+}
+const EMPTY_ASYNC_FUNCTION = async () => {
+}
 const ALWAYS_FALSE = () => false
 
 export default class CancellationToken {
@@ -11,10 +13,10 @@ export default class CancellationToken {
     private _cancellationCallbacks: Set<((reason?: any) => void) | ((reason?: any) => Promise<void>)> = new Set()
     // private _unregisterFunctions: (() => boolean)[] = []
 
-    public static readonly UNCANCELLABLE_TOKEN = new CancellationToken(EMPTY_FUNCTION, { canBeCanceled: false })
+    public static readonly UNCANCELLABLE_TOKEN = new CancellationToken(EMPTY_FUNCTION, {canBeCanceled: false})
     public static readonly ALREADY_CANCELLED_TOKEN = new CancellationToken(cancel => cancel())
 
-    public constructor (
+    public constructor(
         executor: (cancel: (reason?: any) => Promise<void>) => void,
         options?: { canBeCanceled?: boolean },
     ) {
@@ -26,7 +28,7 @@ export default class CancellationToken {
             if (maybeAsyncFunctions.length) {
                 await Promise.all(maybeAsyncFunctions.map(async callback => {
                     await callback(reason)
-    
+
                     // Delete registered callback after it was called.
                     // You can delete item from Set while iterating (https://stackoverflow.com/questions/28306756/is-it-safe-to-delete-elements-in-a-set-while-iterating-with-for-of).
                     this._cancellationCallbacks.delete(callback)
@@ -50,7 +52,7 @@ export default class CancellationToken {
     }
 
     public static sourceArray(): [CancellationToken, (reason?: any) => Promise<void>] {
-        const { token, cancel } = CancellationToken.source()
+        const {token, cancel} = CancellationToken.source()
         return [
             token,
             cancel,
@@ -67,7 +69,7 @@ export default class CancellationToken {
         if (tokens.every(token => !token.canBeCancelled)) {
             return CancellationToken.UNCANCELLABLE_TOKEN
         }
-        
+
         const [combinedToken, cancelCombinedToken] = CancellationToken.sourceArray()
         const unregisterFunctions: (() => boolean)[] = []
         const cancelCombinedTokenAndUnregisterAllCallbacks = async (reason: any) => {
@@ -120,7 +122,7 @@ export default class CancellationToken {
     public get isCancellationRequested() {
         return this._isCancellationRequested
     }
-    
+
     public throwIfCancellationRequested() {
         if (this._isCancellationRequested) {
             throw this._cancellationError
