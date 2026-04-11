@@ -13,14 +13,15 @@ export default class CancellationToken {
     private _cancellationCallbacks: Set<((reason?: any) => void) | ((reason?: any) => Promise<void>)> = new Set()
     // private _unregisterFunctions: (() => boolean)[] = []
 
-    public static readonly UNCANCELLABLE_TOKEN = new CancellationToken(EMPTY_FUNCTION, {canBeCanceled: false})
+    public static readonly UNCANCELLABLE_TOKEN = new CancellationToken(EMPTY_FUNCTION, {canBeCancelled: false})
     public static readonly ALREADY_CANCELLED_TOKEN = new CancellationToken(cancel => cancel())
 
     public constructor(
         executor: (cancel: (reason?: any) => Promise<void>) => void,
-        options?: { canBeCanceled?: boolean },
+        options?: { canBeCancelled?: boolean },
     ) {
         const cancel = async (reason?: any) => {
+            if (this._isCancellationRequested) return
             this._isCancellationRequested = true
             this._cancellationError = new CancellationError(reason)
 
@@ -38,7 +39,7 @@ export default class CancellationToken {
         executor(cancel)
 
         if (options) {
-            this.canBeCancelled = Boolean(options?.canBeCanceled)
+            this.canBeCancelled = Boolean(options?.canBeCancelled)
         }
     }
 
@@ -96,25 +97,17 @@ export default class CancellationToken {
 
         const [combinedToken, cancelCombinedToken] = CancellationToken.sourceArray()
         let currentCancelledCount = 0
+        const unregisterFunctions: (() => boolean)[] = []
         const onCancel = async (reason: any) => {
             if (++currentCancelledCount === tokens.length) {
-                const reasons: any[] = []
-                for (const token of tokens) {
-                    try {
-                        token.throwIfCancellationRequested()
-                    } catch (error) {
-                        if (error instanceof CancellationError) {
-                            reasons.push(error?.reason)
-                        } else {
-                            throw error
-                        }
-                    }
-                }
                 await cancelCombinedToken(reason)
+                for (const unregisterFunction of unregisterFunctions) {
+                    unregisterFunction()
+                }
             }
         }
         for (const token of tokens) {
-            token.onCancel(onCancel)
+            unregisterFunctions.push(token.onCancel(onCancel))
         }
         return combinedToken
     }

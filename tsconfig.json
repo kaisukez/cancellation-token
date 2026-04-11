@@ -5,12 +5,13 @@
         "declaration": true,
         "outDir": "./dist",
         "strict": true,
-        "baseUrl": "."
+        "baseUrl": ".",
+        "types": ["jest", "node"]
     },
     "include": [
         "src/**/*"
     ],
     "exclude": [
-        "**/*.test.ts"
+        "node_modules"
     ]
 }

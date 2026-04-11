@@ -1,4 +1,3 @@
-import 'jest'
 import CancellationToken from './CancellationToken'
 import CancellationError from './CancellationError'
 
@@ -6,106 +5,64 @@ async function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-describe('async', () => {
-    it('should throw an Error', async () => {
-        const error = new Error('error')
-
-        async function task() {
-            await sleep(1)
-            throw error
-        }
-
-        await expect(task()).rejects.toBe(error)
+describe('CancellationError', () => {
+    it('should be an instance of Error', () => {
+        const error = new CancellationError()
+        expect(error).toBeInstanceOf(Error)
+        expect(error).toBeInstanceOf(CancellationError)
     })
 
-    it('should throw an Error even if you use CancellationError.ignoreAsync', async () => {
-        const error = new Error('error')
-
-        async function task() {
-            await sleep(1)
-            throw error
-        }
-
-        await expect(CancellationError.ignoreAsync(() => task())).rejects.toBe(error)
+    it('should have name CancellationError', () => {
+        expect(new CancellationError().name).toBe('CancellationError')
     })
 
-    it('should throw a CancellationError', async () => {
-        const token = new CancellationToken(cancel => {
-            setTimeout(async () => {
-                await cancel()
-            }, 5)
-        })
-
-        async function task(token: CancellationToken) {
-            await sleep(10)
-            expect(token.isCancellationRequested).toBe(true)
-            token.throwIfCancellationRequested()
-        }
-
-        await expect(task(token)).rejects.toBeInstanceOf(CancellationError)
+    it('should store reason', () => {
+        const reason = Symbol()
+        expect(new CancellationError(reason).reason).toBe(reason)
     })
 
-    it('should not throw a CancellationError', async () => {
-        const token = new CancellationToken(cancel => {
-            setTimeout(async () => {
-                await cancel()
-            }, 5)
-        })
-
-        async function task(token: CancellationToken) {
-            await sleep(10)
-            expect(token.isCancellationRequested).toBe(true)
-            token.throwIfCancellationRequested()
-        }
-
-        await expect(CancellationError.ignoreAsync(() => task(token))).resolves.toBe(undefined)
+    it('should have undefined reason when not provided', () => {
+        expect(new CancellationError().reason).toBeUndefined()
     })
 })
 
-describe('sync', () => {
-    it('should throw an Error', () => {
+describe('CancellationError.ignoreAsync', () => {
+    it('should re-throw non-CancellationErrors', async () => {
         const error = new Error('error')
-
-        function task() {
-            throw error
-        }
-
-        expect(() => task()).toThrow(error)
+        await expect(CancellationError.ignoreAsync(async () => { throw error })).rejects.toBe(error)
     })
 
-    it('should throw an Error even if you use CancellationError.ignoreSync', async () => {
-        const error = new Error('error')
-
-        function task() {
-            throw error
-        }
-
-        expect(() => CancellationError.ignoreSync(() => task())).toThrow(error)
-    })
-
-    it('should throw a CancellationError', async () => {
-        const token = new CancellationToken(async cancel => {
-            await cancel()
+    it('should resolve with undefined when CancellationError is thrown', async () => {
+        const token = new CancellationToken(cancel => {
+            setTimeout(() => cancel(), 5)
         })
 
-        async function task(token: CancellationToken) {
-            expect(token.isCancellationRequested).toBe(true)
+        async function task() {
+            await sleep(10)
             token.throwIfCancellationRequested()
         }
 
-        await expect(task(token)).rejects.toBeInstanceOf(CancellationError)
+        await expect(CancellationError.ignoreAsync(() => task())).resolves.toBeUndefined()
     })
 
-    it('should not throw an error', async () => {
-        const token = new CancellationToken(async cancel => {
-            await cancel()
-        })
+    it('should propagate the resolved value when no error', async () => {
+        await expect(CancellationError.ignoreAsync(async () => 42)).resolves.toBe(42)
+    })
+})
 
-        function task(token: CancellationToken) {
-            expect(token.isCancellationRequested).toBe(true)
-            token.throwIfCancellationRequested()
-        }
+describe('CancellationError.ignoreSync', () => {
+    it('should re-throw non-CancellationErrors', () => {
+        const error = new Error('error')
+        expect(() => CancellationError.ignoreSync(() => { throw error })).toThrow(error)
+    })
 
-        expect(() => CancellationError.ignoreSync(() => task(token))).not.toThrow()
+    it('should return undefined when CancellationError is thrown', () => {
+        const token = new CancellationToken(async cancel => { await cancel() })
+        expect(() => token.throwIfCancellationRequested()).toThrow(CancellationError)
+        expect(CancellationError.ignoreSync(() => token.throwIfCancellationRequested())).toBeUndefined()
+    })
+
+    it('should propagate the return value when no error', () => {
+        expect(CancellationError.ignoreSync(() => 42)).toBe(42)
     })
 })

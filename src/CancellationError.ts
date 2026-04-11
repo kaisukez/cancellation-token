@@ -1,7 +1,9 @@
-export default class CancellationError {
+export default class CancellationError extends Error {
     constructor(
         public readonly reason?: any,
     ) {
+        super('CancellationError')
+        this.name = 'CancellationError'
     }
 
     public static async ignoreAsync<T>(promise: () => Promise<T>): Promise<T | undefined> {

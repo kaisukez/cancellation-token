@@ -50,7 +50,7 @@
         "node-abort-controller": "^3.1.1",
         "node-fetch": "^3.3.2",
         "ts-jest": "^29.1.1",
-        "tsup": "^7.2.0",
+        "tsup": "^8.5.1",
         "typescript": "^5.2.2"
     }
 }
