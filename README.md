@@ -1,6 +1,7 @@
 # @kaisukez/cancellation-token
 
-> **Archived.** In the AI era, you can just generate this kind of utility directly in your project. Feel free to copy the source.
+> [!WARNING]
+> **Archived.** In the AI era, you can just generate this kind of utility directly in your project.
 
 ## What is this library
 This library's idea is based on this proposal [tc39/proposal-cancelable-promises](https://github.com/tc39/proposal-cancelable-promises) which is actually great proposal but it was withdrawn for some reason.
